@@ -21,10 +21,89 @@ crabにマウントされているストレージはRAIDで冗長化されてい
 
 |  mount point  |  容量           |   主な用途                                 | 
 | ------------- | --------------  | ------------------------------------------|
-|  /home        |  73 TB (RAID1)  | ホームディレクトリ　　　　 　　　　　　　　　  | 
+|  /home        |  73 TB (RAID1)  | ホームディレクトリ　　　　 　　　　　　  　　　  | 
 |  /data        |  117 TB (RAID10)| シミュレーションとデータ解析                 | 
 |  /data2       |  100 TB (RAID10)| シミュレーションとデータ解析                 | 
-|  /data3       |  100 TB (RAID10)| シミュレーションとデータ解析                 | 
+|  /data3       |  100 TB (RAID10)| シミュレーションとデータ解析 (年内予定)         | 
+
+---
+
+### 初期設定
+
+#### アカウントの作成
+
+クラスタの管理者(松永)へアカウント名を伝えて、アカウントを作成してもらう。アカウント名はローカルマシンで使っているものと一緒であるのが望ましい。
+
+#### ログインノードのIPアドレスを登録
+
+ローカルマシンへログインノードであるcrabと、m1のIPアドレスを登録する。
+```bash
+$ sudo vim /etc/hosts
+# IP情報は別途提供する
+```
+
+#### クラスタへログインする
+
+```bash
+# on local machine
+$ ssh crab
+# アカウント名を指定する場合は ssh -l username crab
+# 初期パスワードは別途提供する
+```
+
+#### 初期パスワードを変更する
+
+```bash
+# on crab
+$ sudo passwd $(USERNAME)
+# 初期パスワードの入力
+# 新パスワードの入力
+```
+
+#### SSH公開鍵認証の設定をする
+
+パスワード認証はセキュアではないので、ローカルマシンとcrabとで公開鍵認証が行えるように設定を行う。
+まず、ローカルマシン上で公開鍵・秘密鍵を作成する。ローカルマシンとcrabの認証に使う
+```bash
+# on local machine
+$ ssh-keygen -t rsa
+パスワード設定を求められたら入力する。ファイルのパスはそのままでリターン
+```
+
+crab上でも作っておく。これはcrabと計算ノード(n1〜)の認証に使うため
+```bash
+$ ssh crab
+$ ssh-keygen -t rsa
+今度はパスワード設定を求められたら空のままリターン。ファイルのパスはそのままでリターン
+```
+
+ローカルマシンに戻って、ローカルマシンの公開鍵をcrabへ登録する
+```bash
+# on local machine
+$ scp ~/.ssh/id_rsa.pub crab:.ssh/authorized_keys
+```
+
+ややこしいが、今度はcrabの公開鍵を同じ場所へ登録する。homeを計算ノード(n1〜)と共有しているため
+```bash
+# on local machine
+$ ssh crab
+# on crab
+$ cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
+```
+
+ローカルマシンに戻って、crabへのログインに公開鍵認証できるか試してみる
+```bash
+# on local machine
+# SSHエージェントへ秘密鍵を登録する
+$ ssh-add ~/.ssh/id_rsa
+$ ssh crab
+```
+
+crabから計算ノードへも公開鍵認証できるか試してみる
+```bash
+# on crab
+$ ssh n1
+```
 
 ---
 
@@ -84,83 +163,4 @@ slurmのジョブ投入におけるオプションについては以下が詳し
 
 - https://www.j-focus.jp/user_guide/ug0004020000/
 
----
-
-### 初期設定
-
-#### アカウントの作成
-
-クラスタの管理者(松永)へアカウント名を伝えて、アカウントを作成してもらう。アカウント名はローカルマシンで使っているものと一緒であるのが望ましい。
-
-#### ログインノードのIPアドレスを登録
-
-ローカルマシンへログインノードであるcrabと、m1のIPアドレスを登録する。
-```bash
-$ sudo vim /etc/hosts
-# IP情報は別途提供する
-```
-
-#### クラスタへログインする
-
-```bash
-# on local machine
-$ ssh crab
-# アカウント名を指定する場合は ssh -l username crab
-# 初期パスワードは別途提供する
-```
-
-#### 初期パスワードを変更する
-
-```bash
-# on crab
-$ passwd
-# 初期パスワードの入力
-# 新パスワードの入力
-```
-
-#### SSH公開鍵認証の設定をする
-
-パスワード認証はセキュアではないので、ローカルマシンとcrabとで公開鍵認証が行えるように設定を行う。
-まず、ローカルマシン上で公開鍵・秘密鍵を作成する。ローカルマシンとcrabの認証に使う
-```bash
-# on local machine
-$ ssh-keygen -t rsa
-パスワード設定を求められたら入力する。ファイルのパスはそのままでリターン
-```
-
-crab上でも作っておく。これはcrabと計算ノード(n1〜)の認証に使うため
-```bash
-$ ssh -l username crab
-$ ssh-keygen -t rsa
-今度はパスワード設定を求められたら空のままリターン。ファイルのパスはそのままでリターン
-```
-
-ローカルマシンに戻って、ローカルマシンの公開鍵をcrabへ登録する
-```bash
-# on local machine
-$ scp ~/.ssh/id_rsa.pub username@crab:.ssh/authorized_keys
-今度はパスワード設定を求められたら空のままリターン。ファイルのパスはそのままでリターン
-```
-
-ややこしいが、今度はcrabの公開鍵を同じ場所へ登録する。homeを計算ノード(n1〜)と共有しているため
-```bash
-# on local machine
-$ ssh -l username crab
-# on crab
-$ cat ~/.ssh/id_rsa.pub >>~/.ssh/authorized_keys
-```
-
-ローカルマシンに戻って、crabへのログインに公開鍵認証できるか試してみる
-```bash
-# on local machine
-# SSHエージェントへ秘密鍵を登録する
-$ ssh-add ~/.ssh/id_rsa
-$ ssh -l username crab
-```
-
-crabから計算ノードへも公開鍵認証できるか試してみる
-```bash
-# on crab
-$ ssh n1
-```
 
