@@ -58,6 +58,9 @@ $ ssh crab
 $ sudo passwd $(USERNAME)
 # 初期パスワードの入力
 # 新パスワードの入力
+# もう一度入力
+$ cd /var/yp/
+$ sudo make
 ```
 
 #### SSH公開鍵認証の設定をする
