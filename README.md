@@ -130,11 +130,24 @@ $ sbatch run.sh
 
 ノードを指定してジョブを投入
 ```bash
-$ sbatch -w n4 run.sh
+$ sbatch -w n5 run.sh
 ```
 
 更に、GPU枚数を指定してジョブを投入
 ```bash
+# n1へ投げる場合
+$ sbatch --gres=gpu:titan:1 -w n1 run.sh
+
+# n2へ投げる場合
+$ sbatch --gres=gpu:titan:1 -w n2 run.sh
+
+# n3へ投げる場合
+$ sbatch --gres=gpu:1080:1 -w n3 run.sh
+
+# n4へ投げる場合
+$ sbatch --gres=gpu:1080:1 -w n4 run.sh
+
+# n5へ投げる場合
 $ sbatch --gres=gpu:2080:1 -w n5 run.sh
 ```
 
