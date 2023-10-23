@@ -168,6 +168,7 @@ $ sbatch -w n1 --dependency=afterok:54 run.sh
 #SBATCH -J run # job name
 #SBATCH -n 1  # num of total mpi processes
 #SBATCH -c 1  # num of threads per mpi processes
+#SBATCH --mail-type=ALL
 #SBATCH -o run.log
 
 # set GPU ID if needed
