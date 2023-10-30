@@ -149,6 +149,14 @@ $ sbatch --gres=gpu:1080:1 -w n4 run.sh
 
 # n5へ投げる場合
 $ sbatch --gres=gpu:2080:1 -w n5 run.sh
+
+# m1へ投げる場合
+$ sbatch --gres=gpu:8000:1 -w m1 run.sh
+
+# m2へ投げる場合
+$ sbatch --gres=gpu:a6000:1 -w m2 run.sh
+または
+$ sbatch --gres=gpu:a5000:1 -w m2 run.sh
 ```
 
 ジョブのキャンセル (JOBIDを指定する。ここでは127とする)
